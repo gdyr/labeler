@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+  <head>
+    <title>LabelMaker</title>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jcanvas/21.0.1/min/jcanvas.min.js'></script>
+    <style>
+
+      html,body {
+        margin: 0px;
+        height: 100%;
+      }
+
+      body {
+        font-family: sans-serif;
+        display: flex;
+        align-items: center;
+        background: #444;
+        color: white;
+        flex-direction: column;
+      }
+
+      #save {
+        padding: 10px;
+        padding-left: 30px;
+        padding-right: 30px;
+        font-size: 90%;
+        background: #555;
+        cursor: pointer;
+        border-radius: 10px;
+        border: none;
+        outline: none;
+        color: inherit;
+        text-decoration: none;
+      }
+
+      #save:hover {
+        background: #666;
+      }
+
+      #text {
+        background: #777;
+        padding: 10px;
+        border: none;
+        border-radius: 10px;
+        color: white;
+        text-align: center;
+        outline: none;
+      }
+
+      #text:focus::placeholder {
+        color: transparent;
+      }
+
+      #text::placeholder {
+        color: #AAA;
+      }
+
+    </style>
+    <script>
+      $(function() {
+
+        var canvas = $('#label');
+
+        function redraw(label) {
+          canvas.drawRect({
+            fillStyle: 'steelblue',
+            x: 100, y: 100,
+            width: 440, height: 280,
+            fromCenter: false,
+          });
+
+          canvas.drawText({
+            fillStyle: '#9cf',
+            x: 320, y: 240,
+            fontSize: 48,
+            fontFamily: 'Verdana, sans-serif',
+            text: 'Hello' + (label ? ' ' + label : '')
+          });
+        }
+
+        redraw('');
+        
+        $('#text').on('keypress', function() {
+          setTimeout(function() {
+            redraw($("#text").val());
+          });
+        });
+
+        $("#save").click(function() {
+          var image = canvas[0].toDataURL('image/png');
+          $("#save").attr('href',image);
+        })
+
+      });
+    </script>
+  </head>
+  <body>
+
+    <h1><br /><br />LabelMaker<br /><br /></h1>
+
+    <input type="text" id="text" placeholder="enter label text"/>
+
+    <canvas id="label" width="640" height="480"></canvas>
+
+    <a href="" id="save" download="label.jpg">Save JPG</button>
+
+  </body>
+</html>
