@@ -18,6 +18,7 @@
         background: #444;
         color: white;
         flex-direction: column;
+        overflow: hidden;
       }
 
       #save, button {
@@ -63,59 +64,135 @@
         vertical-align: 1px;
       }
 
+      #zoomed {
+        transition: 1s;
+        position: absolute;
+        width: 110%;
+        height: 110%;
+        background: rgba(0,0,0,0.8);
+        display: flex;
+        align-content: center;
+        justify-content: center;
+        margin-top: 0px;
+      }
+
+      #zoomed canvas {
+        width: 90%;
+        height: 90%;
+        margin: auto;
+      }
+
+      #zoomed.hidden {
+        opacity: 0;
+        pointer-events: none;
+        margin-top: -20px;
+      }
+
     </style>
     <script>
       $(function() {
 
-        var canvas = $('#label');
+        var canvas1 = $('#label');
+        canvas1.css('cursor', 'zoom-in');
 
         var image;
+        var imagePos = {};
 
-        function redraw() {
+        var canvases = [canvas1, $('#hq')];
+        for(var i in canvases) {
 
-          var label = $("#text").val();
+          var s = 1 + i*3
 
-          canvas.drawRect({
+          var dim = {
+            w: canvases[i][0].getContext('2d').canvas.width,
+            h: canvases[i][0].getContext('2d').canvas.height
+          };
+
+          canvases[i].addLayer({
+            name: 'rect',
+            type: 'rectangle',
             fillStyle: 'steelblue',
-            x: 100, y: 100,
-            width: 440, height: 280,
-            fromCenter: false,
+            x: dim.w/2,
+            y: dim.h/2,
+            width: dim.w - s*200, height: dim.h - s*200,
           });
 
-          function placeLabel() {
-          canvas.drawText({
+          canvases[i].addLayer({
+            name: 'text',
+            type: 'text',
             fillStyle: '#9cf',
-            x: 320, y: 240,
-            fontSize: 48,
+            x: dim.w/2,
+            y: dim.h/2,
+            fontSize: 48*s,
             fontFamily: 'Verdana, sans-serif',
             text: 'Hello' + (label ? ' ' + label : '')
           });
+
+          canvases[i].addLayer({
+            name: 'img',
+            type: 'image',
+            visible: false,
+            draggable: true,
+            fromCenter: false,
+            mouseover: function() {
+              $(this).css('cursor', 'all-scroll');
+            },
+            mouseout: function() {
+              $(this).css('cursor', 'zoom-in');
+            },
+            dragstop: function(layer) {
+              imagePos.y = layer.y// - layer.height/2;
+              imagePos.x = layer.x// - layer.width/2;
+              console.log(imagePos, layer.height, layer.width);
+            }
+          });
+          
         }
 
+        function redraw(canvas, s) {
+
+          if(!s) { s = 1; }
+
+          var dim = {
+            w: canvas[0].getContext('2d').canvas.width,
+            h: canvas[0].getContext('2d').canvas.height
+          };
+
+          var label = $("#text").val();
+          canvas.setLayer('text', {
+            text: 'Hello' + (label ? ' ' + label : '')
+          });
+
           if(image) {
-            var area = {width: 340, height: 180};
+            var area = {width: dim.w - s*300, height: dim.h - s*300};
             var rs = area.width / area.height;
             var ri = image.width / image.height;
             var imageDim = {
               w: rs > ri ? image.width * area.height / image.height : area.width,
               h: rs > ri ? area.height : image.height * area.width / image.width
             };
-            console.log(imageDim);
-            canvas.drawImage({
+            if(!imagePos.x) { imagePos.x = dim.w/2 - imageDim.w/2};
+            if(!imagePos.y) { imagePos.y = dim.h/2 - imageDim.h/2};
+            canvas.setLayer('img', {
               source: image.src,
-              x: 320,
-              y: 240,
+              x: imagePos.x * s,
+              y: imagePos.y * s,
               width: imageDim.w,
               height: imageDim.h,
-              load: placeLabel
-            });
+              visible: true
+            })
+            console.log('imagerender?');
           } else {
-            placeLabel();
+            //placeLabel();
           }
+
+          console.log(canvas)
+
+          canvas.drawLayers();
 
         }
 
-        redraw();
+        redraw(canvas1);
 
         $('#load').click(function() {
           var file = $('#file')[0].files[0];
@@ -123,20 +200,31 @@
           reader.addEventListener('load', function() {
             image = new Image();
             image.src = reader.result;
-            image.onload = redraw;
+            image.onload = function() { redraw(canvas1); }
           }, false);
           if(file) { reader.readAsDataURL(file); }
         })
         
         $('#text').on('keyup', function() {
           setTimeout(function() {
-            redraw();
+            redraw(canvas1);
           });
         });
 
         $("#save").click(function() {
-          var image = canvas[0].toDataURL('image/png');
+          redraw($('#hq'), 4);
+          var image = $('#hq')[0].toDataURL('image/jpg');
           $("#save").attr('href',image);
+        })
+
+        $('#zoomed').click(function() {
+          $('#zoomed').addClass('hidden');
+        })
+
+        canvas1.click(function() {
+          if(canvas1.css('cursor') != 'zoom-in') { return; }
+          redraw($('#hq'), 4);
+          $('#zoomed').removeClass('hidden');
         })
 
       });
@@ -154,7 +242,11 @@
 
     <canvas id="label" width="640" height="480"></canvas>
 
-    <a href="" id="save" download="label.jpg">Save JPG</button>
+    <div id="zoomed" class="hidden">
+      <canvas id="hq" width="2560" height="1920" style="pointer-events: none;"></canvas>
+    </div>
+
+    <a href="" id="save" download="label.jpg">Save JPG</a>
 
   </body>
 </html>
