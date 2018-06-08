@@ -186,6 +186,19 @@ angular.module('labelmaker', [])
           canvas.drawLayers();
         })
 
+        $rootScope.save = function() {
+          var data = canvas[0].toDataURL('image/png');
+          var a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = data;
+          a.download = 'label.png';
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(function() {
+            document.body.removeChild(a);
+          }, 100);
+        }
+
       },
       template: `
         <canvas width="1600" height="2000" style="width: 100%; height: 100%;"></canvas>
