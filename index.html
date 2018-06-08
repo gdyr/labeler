@@ -4,235 +4,15 @@
     <title>LabelMaker</title>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/jcanvas/21.0.1/min/jcanvas.min.js'></script>
-    <style>
-
-      html,body {
-        margin: 0px;
-        height: 100%;
-      }
-
-      body {
-        font-family: sans-serif;
-        display: flex;
-        align-items: center;
-        background: #444;
-        color: white;
-        flex-direction: column;
-        overflow: hidden;
-      }
-
-      #save, button {
-        padding: 10px;
-        padding-left: 30px;
-        padding-right: 30px;
-        font-size: 90%;
-        background: #555;
-        cursor: pointer;
-        border-radius: 10px;
-        border: none;
-        outline: none;
-        color: inherit;
-        text-decoration: none;
-      }
-
-      #save:hover {
-        background: #666;
-      }
-
-      #text {
-        background: #777;
-        padding: 10px;
-        border: none;
-        border-radius: 10px;
-        color: white;
-        text-align: center;
-        outline: none;
-      }
-
-      #text:focus::placeholder {
-        color: transparent;
-      }
-
-      #text::placeholder {
-        color: #AAA;
-      }
-
-      #file {
-        background: #555;
-        padding: 10px;
-        border-radius: 10px;
-        vertical-align: 1px;
-      }
-
-      #zoomed {
-        transition: 1s;
-        position: absolute;
-        width: 110%;
-        height: 110%;
-        background: rgba(0,0,0,0.8);
-        display: flex;
-        align-content: center;
-        justify-content: center;
-        margin-top: 0px;
-      }
-
-      #zoomed canvas {
-        width: 90%;
-        height: 90%;
-        margin: auto;
-      }
-
-      #zoomed.hidden {
-        opacity: 0;
-        pointer-events: none;
-        margin-top: -20px;
-      }
-
-    </style>
-    <script>
-      $(function() {
-
-        var canvas1 = $('#label');
-        canvas1.css('cursor', 'zoom-in');
-
-        var image;
-        var imagePos = {};
-
-        var canvases = [canvas1, $('#hq')];
-        for(var i in canvases) {
-
-          var s = 1 + i*3
-
-          var dim = {
-            w: canvases[i][0].getContext('2d').canvas.width,
-            h: canvases[i][0].getContext('2d').canvas.height
-          };
-
-          canvases[i].addLayer({
-            name: 'rect',
-            type: 'rectangle',
-            fillStyle: 'steelblue',
-            x: dim.w/2,
-            y: dim.h/2,
-            width: dim.w - s*200, height: dim.h - s*200,
-          });
-
-          canvases[i].addLayer({
-            name: 'text',
-            type: 'text',
-            fillStyle: '#9cf',
-            x: dim.w/2,
-            y: dim.h/2,
-            fontSize: 48*s,
-            fontFamily: 'Verdana, sans-serif',
-            text: 'Hello' + (label ? ' ' + label : '')
-          });
-
-          canvases[i].addLayer({
-            name: 'img',
-            type: 'image',
-            visible: false,
-            draggable: true,
-            fromCenter: false,
-            mouseover: function() {
-              $(this).css('cursor', 'all-scroll');
-            },
-            mouseout: function() {
-              $(this).css('cursor', 'zoom-in');
-            },
-            dragstop: function(layer) {
-              imagePos.y = layer.y// - layer.height/2;
-              imagePos.x = layer.x// - layer.width/2;
-              console.log(imagePos, layer.height, layer.width);
-            }
-          });
-          
-        }
-
-        function redraw(canvas, s) {
-
-          if(!s) { s = 1; }
-
-          var dim = {
-            w: canvas[0].getContext('2d').canvas.width,
-            h: canvas[0].getContext('2d').canvas.height
-          };
-
-          var label = $("#text").val();
-          canvas.setLayer('text', {
-            text: 'Hello' + (label ? ' ' + label : '')
-          });
-
-          if(image) {
-            var area = {width: dim.w - s*300, height: dim.h - s*300};
-            var rs = area.width / area.height;
-            var ri = image.width / image.height;
-            var imageDim = {
-              w: rs > ri ? image.width * area.height / image.height : area.width,
-              h: rs > ri ? area.height : image.height * area.width / image.width
-            };
-            if(!imagePos.x) { imagePos.x = dim.w/2 - imageDim.w/2};
-            if(!imagePos.y) { imagePos.y = dim.h/2 - imageDim.h/2};
-            canvas.setLayer('img', {
-              source: image.src,
-              x: imagePos.x * s,
-              y: imagePos.y * s,
-              width: imageDim.w,
-              height: imageDim.h,
-              visible: true
-            })
-            console.log('imagerender?');
-          } else {
-            //placeLabel();
-          }
-
-          console.log(canvas)
-
-          canvas.drawLayers();
-
-        }
-
-        redraw(canvas1);
-
-        $('#load').click(function() {
-          var file = $('#file')[0].files[0];
-          var reader = new FileReader();
-          reader.addEventListener('load', function() {
-            image = new Image();
-            image.src = reader.result;
-            image.onload = function() { redraw(canvas1); }
-          }, false);
-          if(file) { reader.readAsDataURL(file); }
-        })
-        
-        $('#text').on('keyup', function() {
-          setTimeout(function() {
-            redraw(canvas1);
-          });
-        });
-
-        $("#save").click(function() {
-          redraw($('#hq'), 4);
-          var image = $('#hq')[0].toDataURL('image/jpg');
-          $("#save").attr('href',image);
-        })
-
-        $('#zoomed').click(function() {
-          $('#zoomed').addClass('hidden');
-        })
-
-        canvas1.click(function() {
-          if(canvas1.css('cursor') != 'zoom-in') { return; }
-          redraw($('#hq'), 4);
-          $('#zoomed').removeClass('hidden');
-        })
-
-      });
-    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular.min.js'></script>
+    <link href="https://fonts.googleapis.com/css?family=Permanent+Marker|Roboto+Slab:100,300,400,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css">
+    <link rel="stylesheet" href="style.css" />
+    <script src="app.js"></script>
   </head>
-  <body>
+  <body ng-app="labelmaker">
 
-    <h1><br /><br />LabelMaker<br /><br /></h1>
+    <!-- <h1><br /><br />LabelMaker<br /><br /></h1>
 
     <input type="text" id="text" placeholder="enter label text"/><br />
     
@@ -246,7 +26,44 @@
       <canvas id="hq" width="2560" height="1920" style="pointer-events: none;"></canvas>
     </div>
 
-    <a href="" id="save" download="label.jpg">Save JPG</a>
+    <a href="" id="save" download="label.jpg">Save JPG</a> -->
+
+    <div id="bottle" style="margin-right: 50px;">
+      <img src="logo.png" width="120" id="logo" />
+      <img src="bottle.png" width="200" style="margin-left: 50px; margin-right: 50px;" />
+      <!-- <div class="arrow left"><i class="fas fa-chevron-left"></i></div>
+      <div class="arrow right"><i class="fas fa-chevron-right"></i></div> -->
+      <bottle-label></bottle-label>
+      <input type="file" id="fileSelector" style="display: none;" />
+      <button id="imageUpload" ng-click="pickFile('fileSelector')"><i class="far fa-image"></i>&nbsp;&nbsp;Upload your Image</button>
+    </div>
+    <div style="flex-direction: column; height: 600px;">
+      <div id="header" style="flex-direction: row;">
+        <h1>Fathers Day Flowers</h1>
+      </div>
+      <div style="flex-direction: row;">
+        <div id="editor" style="flex-direction: column;">
+          <div>
+            <h2>Create your own beer label</h2>
+            Add the details about your beer and a custom beer<br />
+            label will be created for you. Use the arrows<br />
+            beside the bottle to pick a different label design.
+          </div><br />
+          <div id="fieldset">
+            <div ng-repeat="(k,line) in custom.lines">
+              <label>Text - {{k}}</label><br />
+              <input type="text" ng-model="custom.lines[k]" placeholder="{{k}}" /><br /><br />
+            </div>
+          </div><br />
+          <div id="colours">
+            <button colour-pick="custom.color" color="red"></button>
+            <button colour-pick="custom.color" color="green"></button>
+            <button colour-pick="custom.color" color="blue"></button>
+            <button colour-pick="custom.color" color="yellow"></button>
+          </div>
+        </div>
+      </div>
+    </div>
 
   </body>
 </html>
