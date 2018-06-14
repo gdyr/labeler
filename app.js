@@ -5,9 +5,9 @@ angular.module('labelmaker', [])
 
     $rootScope.custom = {
       lines: {
-        'line 1': 'Airtasker',
-        'line 2': 'Example',
-        'line 3': 'By Michael',
+        'line 1': '#1 DAD',
+        'line 2': 'As voted by',
+        'line 3': 'Jack and Jill',
       }
     };
 
@@ -62,6 +62,23 @@ angular.module('labelmaker', [])
           ]
         };
 
+        var dopt = {
+          complete: function() {
+            for(var i in $rootScope.custom.lines) {
+              var t = canvas.measureText(i);
+              var ratio = t.width / t.height;
+              var bounds = {w: 600, h: 200};
+              var pratio = bounds.w / bounds.h;
+              var newHeight = 200;
+              if(pratio < ratio) {
+                newHeight = Math.min(200, 200 * (bounds.w / t.width));
+              }
+              canvas.setLayer(i, { fontSize: newHeight });
+            }
+            canvas.drawLayers({complete: function() {}});
+          }
+        }
+
         // Draw base layers
         for(var i in template.base) {
           canvas.addLayer(template.base[i]);
@@ -72,10 +89,10 @@ angular.module('labelmaker', [])
           name: 'line 1',
           fillStyle: '#EDE8C6',
           strokeStyle: '#333',
-          strokeWidth: 10,
+          strokeWidth: 5,
           x: 800, y: 250,
-          fontSize: 250,
-          fontFamily: 'Permanent Marker, sans-serif',
+          fontSize: 100,
+          fontFamily: 'Bree Serif, serif',
         })
 
         canvas.addLayer({
@@ -83,10 +100,10 @@ angular.module('labelmaker', [])
           name: 'line 2',
           fillStyle: '#EDE8C6',
           strokeStyle: '#333',
-          strokeWidth: 10,
-          x: 800, y: 475,
-          fontSize: 220,
-          fontFamily: 'Permanent Marker, sans-serif',
+          strokeWidth: 5,
+          x: 800, y: 1500,
+          fontSize: 100,
+          fontFamily: 'Bree Serif, serif',
         })
 
         canvas.addLayer({
@@ -95,16 +112,16 @@ angular.module('labelmaker', [])
           fillStyle: '#EDE8C6',
           strokeStyle: '#333',
           strokeWidth: 5,
-          x: 800, y: 1700,
-          fontSize: 180,
-          fontFamily: 'Verdana, sans-serif',
+          x: 800, y: 1720,
+          fontSize: 100,
+          fontFamily: 'Bree Serif, serif',
         })
 
         canvas.addLayer({
           type: 'image',
           source: 'placeholder.png',
           x: 100,
-          y: 630,
+          y: 440,
           width: 1400,
           height: 932,
           fromCenter: false,
@@ -145,7 +162,7 @@ angular.module('labelmaker', [])
               //sx: startCrop.x - xShift,
               sy: yShift
             });
-            canvas.drawLayers();
+            canvas.drawLayers(dopt);
           }
         });
 
@@ -168,22 +185,23 @@ angular.module('labelmaker', [])
           startPos = false;
         })
 
-        canvas.drawLayers();
+        canvas.drawLayers(dopt);
 
         $rootScope.$watch('custom.lines', function() {
           for(var i in $rootScope.custom.lines) {
             canvas.setLayer(i, {
-              text: $rootScope.custom.lines[i]
+              text: $rootScope.custom.lines[i],
+              fontSize: 100
             });
           }
-          canvas.drawLayers();
+          canvas.drawLayers(dopt);
         }, true);
 
         $rootScope.$on('colorChange', function(evt, arg) {
           canvas.setLayer('colour', {
             fillStyle: arg
           });
-          canvas.drawLayers();
+          canvas.drawLayers(dopt);
         })
 
         $rootScope.save = function() {
