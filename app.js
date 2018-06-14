@@ -128,12 +128,12 @@ angular.module('labelmaker', [])
           compositing: 'source-over'
         });
 
-        /*canvas.addLayer({
+        canvas.addLayer({
           type: 'image',
-          source: 'underwatermatt.jpg',
+          visible: false,
           name: 'img',
           x: 100,
-          y: 630,
+          y: 440,
           width: 1400,
           height: 932,
           sx: 0,
@@ -142,10 +142,10 @@ angular.module('labelmaker', [])
           sHeight: 320,
           cropFromCenter: false,
           fromCenter: false
-        })*/
+        })
 
         canvas.on('mousemove', function(e) {
-          var overImage = (
+          var overImage = canvas.getLayer('img').visible && (
             e.offsetX > 12 && e.offsetX < 150
             && e.offsetY > 65 && e.offsetY < 155);
           canvas.css('cursor', overImage?'all-scroll':'default');
@@ -162,7 +162,7 @@ angular.module('labelmaker', [])
               //sx: startCrop.x - xShift,
               sy: yShift
             });
-            canvas.drawLayers(dopt);
+            canvas.drawLayers();
           }
         });
 
@@ -204,6 +204,14 @@ angular.module('labelmaker', [])
           canvas.drawLayers(dopt);
         })
 
+        $rootScope.$on('imageChange', function(evt, img) {
+          canvas.setLayer('img', {
+            source: img.src,
+            visible: true
+          })
+          canvas.drawLayers();
+        })
+
         $rootScope.save = function() {
           var data = canvas[0].toDataURL('image/png');
           var a = document.createElement('a');
@@ -239,5 +247,25 @@ angular.module('labelmaker', [])
       template: `
         <div class="colour" ng-style="{background: thiscol}"></div>
       `
+    }
+  })
+
+  .directive('filechange', function() {
+    return {
+      restrict: 'A',
+      controller: function($rootScope, $element) {
+        $element.on('change', function() {
+          var file = $element[0].files[0];
+          var reader = new FileReader();
+          reader.addEventListener('load', function() {
+            image = new Image();
+            image.src = reader.result;
+            image.onload = function() {
+              $rootScope.$emit('imageChange', image);
+            }
+          }, false);
+          if(file) { reader.readAsDataURL(file); }
+        });
+      }
     }
   })

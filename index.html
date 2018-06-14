@@ -18,12 +18,14 @@
       <!-- <div class="arrow left"><i class="fas fa-chevron-left"></i></div>
       <div class="arrow right"><i class="fas fa-chevron-right"></i></div> -->
       <bottle-label></bottle-label>
-      <input type="file" id="fileSelector" style="display: none;" />
+      <input type="file" id="fileSelector" style="display: none;" filechange />
       <button id="imageUpload" ng-click="pickFile('fileSelector')"><i class="far fa-image"></i>&nbsp;&nbsp;Upload your Image</button>
     </div>
     <div style="flex-direction: column; height: 600px;">
-      <div id="header" style="flex-direction: row;">
-        <h1>Fathers Day Flowers</h1>
+      <div id="header" style="flex-direction: row; position: relative;">
+        <h1>FATHER'S DAY FLOWERS</h1>
+        <img src="mustache.png" id="mustache" />
+        <br /><br />
       </div>
       <div style="flex-direction: row;">
         <div id="editor" style="flex-direction: column;">
@@ -38,7 +40,7 @@
               <label>Text - {{k}}</label><br />
               <input type="text" ng-model="custom.lines[k]" placeholder="{{k}}" /><br /><br />
             </div>
-          </div><br />
+          </div><br /><br />
           <div id="colours">
             <button colour-pick="custom.color" color="red"></button>
             <button colour-pick="custom.color" color="green"></button>

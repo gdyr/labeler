@@ -152,9 +152,16 @@ bottle-label {
   opacity: 0.9;
 }
 
+#mustache {
+  position: absolute;
+  width: 150px;
+  left: 212px;
+  top: 40px;
+}
+
 #imageUpload {
   position: absolute;
-  bottom: -50px;
+  bottom: 8px;
   left: 50%;
   width: 220px;
   margin-left: -110px;
