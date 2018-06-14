@@ -136,10 +136,10 @@ angular.module('labelmaker', [])
           y: 440,
           width: 1400,
           height: 932,
-          sx: 0,
-          sy: 160,
-          sWidth: 480,
-          sHeight: 320,
+          sx: 700,
+          sy: 466,
+          sWidth: 1400,
+          sHeight: 932,
           cropFromCenter: false,
           fromCenter: false
         })
@@ -153,13 +153,15 @@ angular.module('labelmaker', [])
 
         $document.on('mousemove', function(e) {
           if(startPos) {
-            var xShift = e.clientX - startPos.x;
+            var xShift = startCrop.x - 2*(e.clientX - startPos.x);
             var yShift = startCrop.y - 2*(e.clientY - startPos.y);
             var img = canvas.getLayer('img');
-            yShift = Math.min(yShift, img.sHeight);
-            yShift = Math.max(yShift, 160);
+            yShift = Math.min(yShift, img.sHeight+466);
+            yShift = Math.max(yShift, 466);
+            xShift = Math.min(xShift, img.sWidth);
+            xShift = Math.max(xShift, 700);
             canvas.setLayer('img', {
-              //sx: startCrop.x - xShift,
+              sx: xShift,
               sy: yShift
             });
             canvas.drawLayers();
@@ -174,7 +176,6 @@ angular.module('labelmaker', [])
             y: e.clientY
           };
           var img = canvas.getLayer('img');
-          console.log(img);
           startCrop = {
             x: img.sx,
             y: img.sy
@@ -254,14 +255,39 @@ angular.module('labelmaker', [])
     return {
       restrict: 'A',
       controller: function($rootScope, $element) {
+        var Pica = pica();
         $element.on('change', function() {
           var file = $element[0].files[0];
           var reader = new FileReader();
           reader.addEventListener('load', function() {
-            image = new Image();
+            var image = new Image();
             image.src = reader.result;
             image.onload = function() {
-              $rootScope.$emit('imageChange', image);
+              var canvasEl = angular.element('#resizerCanvas')[0];
+              //$rootScope.$emit('imageChange', image);
+              var iRatio = image.width / image.height;
+              var bounds = {w: 1400, h: 932};
+              var pRatio = bounds.w / bounds.h;
+              console.log(iRatio, pRatio, iRatio > pRatio);
+              if(iRatio < pRatio) { // make canvas taller
+                canvasEl.width = bounds.w;
+                canvasEl.height = bounds.w * 1/(iRatio);
+              } else {
+                canvasEl.height = bounds.h;
+                canvasEl.width = bounds.h * iRatio;
+              }
+              console.log(canvasEl.width, canvasEl.height);
+              Pica.resize(image, canvasEl, {})
+                .then(function(r) {
+                  if(r) {
+                    var scaledImage = new Image();
+                    scaledImage.src = canvasEl.toDataURL('image/png');
+                    scaledImage.onload = function() {
+                      $rootScope.$emit('imageChange', scaledImage);
+                    }
+                  }
+                })
+              console.log({x:image});
             }
           }, false);
           if(file) { reader.readAsDataURL(file); }
