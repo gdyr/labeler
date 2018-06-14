@@ -152,6 +152,16 @@ bottle-label {
   opacity: 0.9;
 }
 
+#throbber {
+  position: absolute;
+  left: 130px;
+  top: 380px;
+  z-index: 2;
+  width: 40px;
+  opacity: 0.7;
+  display: none;
+}
+
 #mustache {
   position: absolute;
   width: 150px;

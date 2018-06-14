@@ -257,6 +257,7 @@ angular.module('labelmaker', [])
       controller: function($rootScope, $element) {
         var Pica = pica();
         $element.on('change', function() {
+          angular.element('#throbber').show();
           var file = $element[0].files[0];
           var reader = new FileReader();
           reader.addEventListener('load', function() {
@@ -284,6 +285,7 @@ angular.module('labelmaker', [])
                     scaledImage.src = canvasEl.toDataURL('image/png');
                     scaledImage.onload = function() {
                       $rootScope.$emit('imageChange', scaledImage);
+                      angular.element('#throbber').hide();
                     }
                   }
                 })
