@@ -214,16 +214,18 @@ angular.module('labelmaker', [])
         })
 
         $rootScope.save = function() {
-          var data = canvas[0].toDataURL('image/png');
-          var a = document.createElement('a');
-          a.style.display = 'none';
-          a.href = data;
-          a.download = 'label.png';
-          document.body.appendChild(a);
-          a.click();
-          setTimeout(function() {
-            document.body.removeChild(a);
-          }, 100);
+          var data = canvas[0].toBlob((blob) => {
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'label.png';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function() {
+              document.body.removeChild(a);
+            }, 100);
+          }, 'image/png');
         }
 
       },
