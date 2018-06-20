@@ -229,9 +229,7 @@ angular.module('labelmaker', [])
         }
 
       },
-      template: `
-        <canvas width="1600" height="2000" style="width: 100%; height: 100%;"></canvas>
-      `
+      template: '<canvas width="1600" height="2000" style="width: 100%; height: 100%;"></canvas>'
     }
   })
 
@@ -247,9 +245,7 @@ angular.module('labelmaker', [])
           $rootScope.$broadcast('colorChange', $element.attr('color'));
         });
       },
-      template: `
-        <div class="colour" ng-style="{background: thiscol}"></div>
-      `
+      template: '<div class="colour" ng-style="{background: thiscol}"></div>'
     }
   })
 
