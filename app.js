@@ -215,6 +215,10 @@ angular.module('labelmaker', [])
 
         $rootScope.save = function() {
           var data = canvas[0].toBlob(function(blob) {
+            if (navigator.msSaveOrOpenBlob) {
+              navigator.msSaveOrOpenBlob(blob, "label.png");
+              return;
+            }
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
             a.style.display = 'none';
