@@ -214,7 +214,7 @@ angular.module('labelmaker', [])
         })
 
         $rootScope.save = function() {
-          var data = canvas[0].toBlob((blob) => {
+          var data = canvas[0].toBlob(function(blob) {
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
             a.style.display = 'none';
