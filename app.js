@@ -14,6 +14,10 @@ angular.module('labelmaker', [])
     $rootScope.pickFile = function(id) {
       angular.element('#'+id)
         .click();
+    };
+
+    $rootScope.mobileSwap = function() {
+      $rootScope.mobilePage = !$rootScope.mobilePage;
     }
 
   })
@@ -144,19 +148,35 @@ angular.module('labelmaker', [])
           fromCenter: false
         })
 
-        canvas.on('mousemove', function(e) {
-          var overImage = canvas.getLayer('img').visible && (
+        function overImage(e) {
+          return canvas.getLayer('img').visible && (
             e.offsetX > 12 && e.offsetX < 150
             && e.offsetY > 65 && e.offsetY < 155);
-          canvas.css('cursor', overImage?'all-scroll':'default');
-        });
+        }
 
-        $document.on('mousemove', function(e) {
+        canvas.on('mousemove', function(e) {
+          canvas.css('cursor', overImage(e)?'all-scroll':'default');
+        });
+        function touch2mouse(e) {
+          if(e.type == 'touchmove' || e.type == 'touchstart') {
+            if(e.targetTouches.length == 1) {
+              e.clientX = e.targetTouches[0].clientX;
+              e.clientY = e.targetTouches[0].clientY;
+              return e;
+            } else { return false; }
+          } else {
+            return e;
+          }
+        }
+
+        $document.on('mousemove touchmove', function(e) {
+          e = touch2mouse(e); if(!e) { return; }
+          m = (e.type == 'touchmove' ? 6 : 2);
           if(startPos) {
-            var xShift = startCrop.x - 2*(e.clientX - startPos.x);
-            var yShift = startCrop.y - 2*(e.clientY - startPos.y);
+            var xShift = startCrop.x - m*(e.clientX - startPos.x);
+            var yShift = startCrop.y - m*(e.clientY - startPos.y);
             var img = canvas.getLayer('img');
-            yShift = Math.min(yShift, img.sHeight+466);
+            yShift = Math.min(yShift, img.sHeight);
             yShift = Math.max(yShift, 466);
             xShift = Math.min(xShift, img.sWidth);
             xShift = Math.max(xShift, 700);
@@ -165,12 +185,18 @@ angular.module('labelmaker', [])
               sy: yShift
             });
             canvas.drawLayers();
+            e.preventDefault();
           }
         });
 
         var startPos, startCrop;
-        canvas.on('mousedown', function(e) {
-          if(canvas.css('cursor') != 'all-scroll') { return; }
+        canvas.on('mousedown touchstart', function(e) {
+          e = touch2mouse(e); if(!e) { return; }
+          if(e.type == 'touchstart') {
+            if(!overImage(e)) { return; }
+          } else {
+            if(canvas.css('cursor') != 'all-scroll') { return; }
+          }
           startPos = {
             x: e.clientX,
             y: e.clientY
@@ -182,7 +208,7 @@ angular.module('labelmaker', [])
           }
         });
 
-        $document.on('mouseup', function() {
+        $document.on('mouseup touchend', function() {
           startPos = false;
         })
 

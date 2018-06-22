@@ -5,14 +5,18 @@ html,body {
 
 body {
   font-family: 'Roboto Slab', serif;
-  display: flex;
-  align-items: center;
   background: #444;
-  flex-direction: row;
   background: url('bg.jpg');
-  background-position: center center;
   background-size: cover;
+}
+
+#container {
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  background-position: center center;
   justify-content: center;
+  align-items: center;
 }
 
 /*#save, button {
@@ -108,6 +112,7 @@ h2 {
 }
 #bottle {
   position: relative;
+  margin-right: 50px;
 }
 
 #logo {
@@ -169,12 +174,16 @@ bottle-label {
   top: 40px;
 }
 
-#imageUpload {
+#imageUpload, #mobileSave {
   position: absolute;
   bottom: 8px;
   left: 50%;
   width: 220px;
   margin-left: -110px;
+}
+
+#mobileSave {
+  bottom: -40px;
 }
 
 button {
@@ -206,4 +215,71 @@ button {
   display: block;
   box-shadow: inset rgba(0,0,0,0.5) 0 0 0 4px;
   border-radius: 3px;
+}
+
+.mobile-visible {
+  display: none;
+}
+
+#mobileHeader {
+  padding: 10px;
+  background: rgba(255, 255, 200, 0.85);
+  text-align: center;
+}
+
+h3 {
+  margin: 0px;
+  display: inline;
+  line-height: 50px;
+}
+
+#mobileHeader > h3 {
+  vertical-align: 15px;
+  padding-left: 20px;
+}
+
+canvas {
+  touch-action: none;
+}
+
+#swapMobileButton {
+  position: absolute;
+  right: 50%;
+  width: 130px;
+  margin-right: -65px;
+  top: 150px;
+}
+
+@media only screen and (max-width: 600px) {
+
+  .mobile-hidden {
+    display: none;
+  }
+
+  .mobile-visible {
+    display: inherit;
+  }
+
+  #bottle {
+    margin-right: 0px;
+  }
+
+  #logo {
+    left: -10px;
+    top: -10px;
+  }
+
+  #fieldset input {
+    width: 95%;
+  }
+
+  #editor {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  body {
+    margin-bottom: 150px;
+  }
+
 }

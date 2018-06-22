@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>LabelMaker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/jcanvas/21.0.1/min/jcanvas.min.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular.min.js'></script>
@@ -15,43 +16,53 @@
   </head>
   <body ng-app="labelmaker">
 
-    <div id="bottle" style="margin-right: 50px;">
-      <img src="logo.png" width="120" id="logo" />
-      <img src="bottle.png" width="200" style="margin-left: 50px; margin-right: 50px;" />
-      <img src="ajax-loader.gif" id="throbber" />
-      <!-- <div class="arrow left"><i class="fas fa-chevron-left"></i></div>
-      <div class="arrow right"><i class="fas fa-chevron-right"></i></div> -->
-      <bottle-label></bottle-label>
-      <input type="file" id="fileSelector" style="display: none;" filechange />
-      <canvas width="1400" height="932" style="display: none;" id="resizerCanvas"></canvas>
-      <button id="imageUpload" ng-click="pickFile('fileSelector')"><i class="far fa-image"></i>&nbsp;&nbsp;Upload your Image</button>
+
+    <div id="mobileHeader" class="mobile-visible">
+      <img src="logo.png" width="50" />
+      <h3 style="line-height: 50px">FATHER'S DAY FLOWERS</h3>
     </div>
-    <div style="flex-direction: column; height: 600px;">
-      <div id="header" style="flex-direction: row; position: relative;">
-        <h1>FATHER'S DAY FLOWERS</h1>
-        <img src="mustache.png" id="mustache" />
-        <br /><br />
+    <div id="container">
+      <div id="bottle" ng-class="{'mobile-hidden': mobilePage}">
+        <img src="logo.png" width="120" id="logo" class="mobile-hidden" />
+        <button id="swapMobileButton" ng-click="mobileSwap()" class="mobile-visible">Edit label</button>
+        <img src="bottle.png" width="200" style="margin-left: 50px; margin-right: 50px;" />
+        <img src="ajax-loader.gif" id="throbber" />
+        <!-- <div class="arrow left"><i class="fas fa-chevron-left"></i></div>
+        <div class="arrow right"><i class="fas fa-chevron-right"></i></div> -->
+        <bottle-label></bottle-label>
+        <input type="file" id="fileSelector" style="display: none;" filechange />
+        <canvas width="1400" height="932" style="display: none;" id="resizerCanvas"></canvas>
+        <button id="imageUpload" ng-click="pickFile('fileSelector')"><i class="far fa-image"></i>&nbsp;&nbsp;Upload your Image</button>
+        <button id="mobileSave" ng-click="save()" style="float: right;" class="mobile-visible">Save as PNG</button>
       </div>
-      <div style="flex-direction: row;">
-        <div id="editor" style="flex-direction: column;">
-          <div>
-            <h2>Create your own beer label</h2>
-            Add the details about your beer and a custom beer<br />
-            label will be created for you. Use the arrows<br />
-            beside the bottle to pick a different label design.
-          </div><br />
-          <div id="fieldset">
-            <div ng-repeat="(k,line) in custom.lines">
-              <label>Text - {{k}}</label><br />
-              <input type="text" ng-model="custom.lines[k]" placeholder="{{k}}" /><br /><br />
+      <div style="flex-direction: column; height: 600px;" ng-class="{'mobile-hidden': !mobilePage}">
+        <div id="header" style="flex-direction: row; position: relative;" class="mobile-hidden">
+          <h1>FATHER'S DAY FLOWERS</h1>
+          <img src="mustache.png" id="mustache" />
+          <br /><br />
+        </div>
+        <div style="flex-direction: row;">
+          <div id="editor" style="flex-direction: column;">
+            <div>
+              <h2>Create your own beer label</h2>
+              Add the details about your beer and a custom beer<br class="mobile-hidden" />
+              label will be created for you. Use the arrows<br class="mobile-hidden" />
+              beside the bottle to pick a different label design.
+            </div><br />
+            <div id="fieldset">
+              <div ng-repeat="(k,line) in custom.lines">
+                <label>Text - {{k}}</label><br />
+                <input type="text" ng-model="custom.lines[k]" placeholder="{{k}}" /><br /><br />
+              </div>
+            </div><br /><br />
+            <div id="colours">
+              <button colour-pick="custom.color" color="red"></button>
+              <button colour-pick="custom.color" color="green"></button>
+              <button colour-pick="custom.color" color="blue"></button>
+              <button colour-pick="custom.color" color="yellow"></button>
+              <button ng-click="mobileSwap()" style="float: right;">Save</button>
+              <button id="save" ng-click="save()" style="float: right;" class="mobile-hidden">Save as PNG</button>
             </div>
-          </div><br /><br />
-          <div id="colours">
-            <button colour-pick="custom.color" color="red"></button>
-            <button colour-pick="custom.color" color="green"></button>
-            <button colour-pick="custom.color" color="blue"></button>
-            <button colour-pick="custom.color" color="yellow"></button>
-            <button id="save" ng-click="save()" style="float: right;">Save as PNG</button>
           </div>
         </div>
       </div>
