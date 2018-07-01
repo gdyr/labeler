@@ -286,41 +286,41 @@ angular.module('labelmaker', [])
         var Pica = pica();
         $element.on('change', function() {
           angular.element('#throbber').show();
-          var file = $element[0].files[0];
-          var reader = new FileReader();
-          reader.addEventListener('load', function() {
-            var image = new Image();
-            image.src = reader.result;
-            image.onload = function() {
-              var canvasEl = angular.element('#resizerCanvas')[0];
-              //$rootScope.$emit('imageChange', image);
-              var iRatio = image.width / image.height;
-              var bounds = {w: 1400, h: 932};
-              var pRatio = bounds.w / bounds.h;
-              console.log(iRatio, pRatio, iRatio > pRatio);
-              if(iRatio < pRatio) { // make canvas taller
-                canvasEl.width = bounds.w;
-                canvasEl.height = bounds.w * 1/(iRatio);
-              } else {
-                canvasEl.height = bounds.h;
-                canvasEl.width = bounds.h * iRatio;
-              }
-              console.log(canvasEl.width, canvasEl.height);
-              Pica.resize(image, canvasEl, {})
-                .then(function(r) {
-                  if(r) {
-                    var scaledImage = new Image();
-                    scaledImage.src = canvasEl.toDataURL('image/png');
-                    scaledImage.onload = function() {
-                      $rootScope.$emit('imageChange', scaledImage);
-                      angular.element('#throbber').hide();
-                    }
-                  }
-                })
-              console.log({x:image});
+          var image = loadImage(
+            $element[0].files[0],
+            function(img) {
+
+            },
+            {orientation: true}
+          )
+          image.onload = function() {
+            var canvasEl = angular.element('#resizerCanvas')[0];
+            //$rootScope.$emit('imageChange', image);
+            var iRatio = image.width / image.height;
+            var bounds = {w: 1400, h: 932};
+            var pRatio = bounds.w / bounds.h;
+            console.log(iRatio, pRatio, iRatio > pRatio);
+            if(iRatio < pRatio) { // make canvas taller
+              canvasEl.width = bounds.w;
+              canvasEl.height = bounds.w * 1/(iRatio);
+            } else {
+              canvasEl.height = bounds.h;
+              canvasEl.width = bounds.h * iRatio;
             }
-          }, false);
-          if(file) { reader.readAsDataURL(file); }
+            console.log(canvasEl.width, canvasEl.height);
+            Pica.resize(image, canvasEl, {})
+              .then(function(r) {
+                if(r) {
+                  var scaledImage = new Image();
+                  scaledImage.src = canvasEl.toDataURL('image/png');
+                  scaledImage.onload = function() {
+                    $rootScope.$emit('imageChange', scaledImage);
+                    angular.element('#throbber').hide();
+                  }
+                }
+              })
+            console.log({x:image});
+          }
         });
       }
     }
