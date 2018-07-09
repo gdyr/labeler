@@ -8,6 +8,7 @@ body {
   background: #444;
   background: url('bg.jpg');
   background-size: cover;
+  min-height: 800px;
 }
 
 #container {
